@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -15,53 +14,61 @@ func check(err error) {
 	}
 }
 
-type targetValues struct {
-	value1 int64
-	value2 int64
+func sum(slice []int64) int64 {
+	total := int64(0)
+	for i := 0; i < len(slice); i++ {
+		total += slice[i]
+	}
+
+	return total
 }
 
-func getTargets(target int64) (targetValues, error) {
+func contains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func getData() []int {
 	data, err := ioutil.ReadFile("./data.txt")
 	check(err)
 
 	items := strings.Split(string(data), "\n")
-	targetNumbers := targetValues{}
 
-	for n := 0; n < len(items); n++ {
-		current := n
-		if targetNumbers.value1 != 0 {
-			break
-		}
+	intData := make([]int, len(items))
 
-		for i := 0; i < len(items); i++ {
-			if items[i] != items[current] {
-				first, err := strconv.ParseInt(items[current], 0, 64)
-				check(err)
+	for i := 0; i < len(items); i++ {
+		num, err := strconv.ParseInt(items[i], 0, 0)
+		check(err)
 
-				second, err := strconv.ParseInt(items[i], 0, 64)
-				check(err)
-
-				total := first + second
-
-				if total == target {
-					targetNumbers.value1 = first
-					targetNumbers.value2 = second
-					break
-				}
-			}
-		}
+		intData = append(intData, int(num))
 	}
 
-	if targetNumbers.value1 > 0 {
-		return targetNumbers, nil
-	}
+	return intData
+}
 
-	return targetNumbers, errors.New("failed")
+func part1(data []int) {
+	checkedValues := make([]int, len(data))
+
+	for i := 0; i < len(data); i++ {
+		diff := 2020 - data[i]
+
+		if contains(checkedValues, diff) {
+			fmt.Println(diff * data[i])
+		}
+
+		checkedValues = append(checkedValues, data[i])
+	}
+}
+
+func part2(data []int) {
+
 }
 
 func main() {
-	targetNumbers, err := getTargets(2020)
-	check(err)
-
-	fmt.Println(targetNumbers.value1 * targetNumbers.value2)
+	data := getData()
+	part1(data)
 }
